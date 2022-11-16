@@ -1,0 +1,74 @@
+﻿
+
+
+-- Added total number of orders to every client + ordered desc
+-- top 2 clients are from usa & china ,they are bigger by far from others
+
+
+EVALUATE
+(
+ADDCOLUMNS ('Customers', "OrderNo",[TotOrderNumber], "TotRev", [TotRev])
+)
+ORDER BY [totrev] DESC
+
+
+-- Non Active Customers (Indication from preveous Year)
+
+EVALUATE
+
+SUMMARIZECOLUMNS(
+Customers[Customer Name],
+'Date'[Year],
+"Total Revenue", [TotRev],
+"NonActive Indicator", [NonActiveCustomers]
+)
+
+ORDER BY 
+Customers[Customer Name] ASC,
+'Date'[Year] ASC
+
+
+
+
+--Sales and Avg sales by product & customer
+
+
+evaluate(
+         summarize(
+                   'Sales',
+                   Sales[CustomerSK],
+                   Sales[ProductSK],
+                   'Date'[Year],
+                   Customers[Customer Name],
+                   Products[Product Name],
+                   "Total Sales", SUM(Sales[Revenue]),
+                   "Average Sales", AVERAGE(Sales[Revenue])
+                )
+)
+order by [ProductSK], [customersk]
+
+
+
+--Filter: Totrev and Order number by Customer without 2 biggest ones
+
+EVALUATE
+
+FILTER(
+
+(SUMMARIZECOLUMNS(
+Sales[CustomerSK],
+Customers[Customer Name],
+"OrderQty", 'Measure Table'[Totordernumber],
+"totrev" ,'Measure Table'[totrev])),
+AND([customer name]<>"Debra", [customer name]<>"Jacquli")
+)
+    
+    
+    
+---Related: orders of Apartment insurance
+
+EVALUATE
+FILTER( 'Sales',   
+RELATED('products'[Segment Name])="apartment")
+
+
